@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jms
+		http://www.springframework.org/schema/jms/spring-jms.xsd">
+
+    <!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供-->
+    <bean id="targetConnectionFactory"
+          class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL"
+                  value="tcp://192.168.128.128:61616"></property>
+    </bean>
+    <!--spring用于管理真正的connectionFactory的connectionFactory-->
+    <bean id="connectionFactory"
+          class="org.springframework.jms.connection.SingleConnectionFactory">
+        <!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory -->
+        <property name="targetConnectionFactory"
+                  ref="targetConnectionFactory"></property>
+    </bean>
+
+    <!--这个是队列目的地-->
+    <bean id="queueTextDestination"
+          class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="pyg_queue_solr"></constructor-arg>
+    </bean>
+
+    <!--我的监听类-->
+    <!--<bean id="myMessageListener" class="com.pyg.springactivemq.itemSearchListener"></bean>-->
+
+    <!--消息监听容器-->
+    <bean
+            class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"></property>
+        <property name="destination" ref="queueTextDestination"></property>
+        <property name="messageListener" ref="itemSearchListener"/>
+    </bean>
+
+
+
+
+    <!--这个是主题目的地，发布订阅的  文本信息-->
+    <bean id="topicTextDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="pyg_queue_solr_delete"/>
+    </bean>
+    <!-- 我的监听类 -->
+    <!--<bean id="youMessageListener" class="com.pyg.springactivemq.YouMessageListener"></bean>-->
+
+    <!-- 消息监听容器 -->
+    <bean
+            class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <!--连接工厂-->
+        <property name="connectionFactory" ref="connectionFactory" />
+        <!--消息消费的目的地-->
+        <property name="destination" ref="topicTextDestination" />
+        <!--消息的监听类-->
+        <property name="messageListener" ref="itemDeleteListener" />
+        <!--消息的监听类-->
+        <!--<property name="messageListener" ref="youMessageListener" />-->
+    </bean>
+
+    <!--<bean id="you2Mess
+    ageListener" class="com.pyg.springactivemq.You2MessageListener"></bean>-->
+    <!--<bean-->
+            <!--class="org.springframework.jms.listener.DefaultMessageListenerContainer">-->
+        <!--&lt;!&ndash;连接工厂&ndash;&gt;-->
+        <!--<property name="connectionFactory" ref="connectionFactory" />-->
+        <!--&lt;!&ndash;消息消费的目的地&ndash;&gt;-->
+        <!--<property name="destination" ref="topicTextDestination" />-->
+        <!--&lt;!&ndash;消息的监听类&ndash;&gt;-->
+        <!--<property name="messageListener" ref="you2MessageListener" />-->
+        <!--&lt;!&ndash;消息的监听类&ndash;&gt;-->
+        <!--&lt;!&ndash;<property name="messageListener" ref="youMessageListener" />&ndash;&gt;-->
+    <!--</bean>-->
+</beans>

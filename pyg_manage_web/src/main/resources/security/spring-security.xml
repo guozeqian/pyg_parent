@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!--匿名访问，不需要登录就可以访问的资源-->
+    <http pattern="/login.html" security="none"></http>
+    <http pattern="/css/**" security="none"></http>
+    <http pattern="/img/**" security="none"></http>
+    <http pattern="/js/**" security="none"></http>
+    <http pattern="/plugins/**" security="none"></http>
+
+    <!--拦截规则-->
+    <http>
+        <intercept-url pattern="/**"
+                       access="hasRole('ROLE_ADMIN')"></intercept-url>
+        <form-login login-page="/login.html"
+                    default-target-url="/admin/index.html"></form-login>
+        <csrf disabled="true"></csrf>
+        <logout logout-url="/logout" logout-success-url="/login.html"/>
+        <headers>
+            <!--security默认是不让用iframe 默认值是deny拒绝 SAMEORIGIN同源 ALLOW-FROM可以嵌入一个外部的页面-->
+            <frame-options policy="SAMEORIGIN"></frame-options>
+        </headers>
+    </http>
+
+    <!--认证管理器，数据库中的用户名和密码提供给认证管理器，它可以得到页面提供的用户名和密码，1，核对，2保存-->
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="admin" password="111111"
+                      authorities="ROLE_ADMIN"></user>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+
+
+</beans:beans>

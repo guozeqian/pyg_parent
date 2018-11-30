@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jms
+		http://www.springframework.org/schema/jms/spring-jms.xsd">
+
+    <!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供-->
+    <bean id="targetConnectionFactory"
+          class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL"
+                  value="tcp://192.168.128.128:61616"></property>
+    </bean>
+    <!--spring用于管理真正的connectionFactory的connectionFactory-->
+    <bean id="connectionFactory"
+          class="org.springframework.jms.connection.SingleConnectionFactory">
+        <!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory -->
+        <property name="targetConnectionFactory"
+                  ref="targetConnectionFactory"></property>
+    </bean>
+
+    <!--这个是队列目的地-->
+    <bean id="topicPageDestination"
+          class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="pyg_topic_page"></constructor-arg>
+    </bean>
+    <bean
+            class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <!--连接工厂-->
+        <property name="connectionFactory" ref="connectionFactory" />
+        <!--消息消费的目的地-->
+        <property name="destination" ref="topicPageDestination" />
+        <!--消息的监听类-->
+        <property name="messageListener" ref="pageListener" />
+        <!--消息的监听类-->
+    </bean>
+
+    <!--这个是队列目的地-->
+    <bean id="topicPageDeletetDestination"
+          class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="pyg_topic_page_delete"></constructor-arg>
+    </bean>
+
+    <!--<bean id="you2MessageListener" class="com.pyg.springactivemq.You2MessageListener"></bean>-->
+    <bean
+    class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <!--连接工厂-->
+    <property name="connectionFactory" ref="connectionFactory" />
+    <!--消息消费的目的地-->
+    <property name="destination" ref="topicPageDeletetDestination" />
+    <!--消息的监听类-->
+    <property name="messageListener" ref="pageDeleteListener" />
+    </bean>
+</beans>

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="pyg_page_interface:war">
+    <output-path>$PROJECT_DIR$/pyg_page_interface/target</output-path>
+    <root id="archive" name="pyg_page_interface-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="pyg_page_interface:war exploded" />
+    </root>
+  </artifact>
+</component>
